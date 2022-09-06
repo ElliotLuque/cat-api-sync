@@ -10,7 +10,7 @@ on:
 jobs:
   run-script:
     name: Run sync script
-    runs-on: windows-2019
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
