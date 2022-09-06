@@ -18,8 +18,11 @@ baseURL = "https://api.thecatapi.com/v1"
 # Generate Cat Object
 def createCatObject(catId):
 
+    print("CAT " + catId)
     # GET cat data from API
     cat = requests.get(baseURL + "/breeds/" + catId).json()
+    if cat["reference_image_id"] is None:
+        print("FAILING")
     catReferenceImage = requests.get(baseURL + "/images/" + cat["reference_image_id"] +  "?size=med").json()
     catImages = requests.get(baseURL + "/images/search?size=med&order=DESC&limit=8&include_breeds=false&breed_ids=" + catId, headers = authHeaders).json()
                                         
