@@ -18,40 +18,38 @@ baseURL = "https://api.thecatapi.com/v1"
 # Generate Cat Object
 def createCatObject(catId):
 
-    print("CAT " + catId)
-    # GET cat data from API
-    cat = requests.get(baseURL + "/breeds/" + catId).json()
-    if cat["reference_image_id"] is None:
-        print("FAILING")
-    catReferenceImage = requests.get(baseURL + "/images/" + cat["reference_image_id"] +  "?size=med").json()
-    catImages = requests.get(baseURL + "/images/search?size=med&order=DESC&limit=8&include_breeds=false&breed_ids=" + catId, headers = authHeaders).json()
-                                        
-    # Fill images array
-    imagesArray = []
-    for image in catImages:
-        imagesArray.append(image["url"])
+    if catId is not None:
+        # GET cat data from API
+        cat = requests.get(baseURL + "/breeds/" + catId).json()
+        catReferenceImage = requests.get(baseURL + "/images/" + cat["reference_image_id"] +  "?size=med").json()
+        catImages = requests.get(baseURL + "/images/search?size=med&order=DESC&limit=8&include_breeds=false&breed_ids=" + catId, headers = authHeaders).json()
+                                            
+        # Fill images array
+        imagesArray = []
+        for image in catImages:
+            imagesArray.append(image["url"])
 
-    # Cat attributes
-    catObject = {
-        "_id": cat["id"],
-        "name": cat["name"],
-        "temperament": cat["temperament"],
-        "origin": cat["origin"],
-        "description": cat["description"],
-        "reference_image": catReferenceImage["url"],
-        "lifespan": cat["life_span"] + " years",
-        "adaptability": cat["adaptability"],
-        "affection_level": cat["affection_level"],
-        "child_friendly": cat["child_friendly"],
-        "grooming": cat["grooming"],
-        "intelligence": cat["intelligence"],
-        "health_issues": cat["health_issues"],
-        "social_needs": cat["social_needs"],
-        "stranger_friendly": cat["stranger_friendly"],
-        "images": imagesArray
-    }
+        # Cat attributes
+        catObject = {
+            "_id": cat["id"],
+            "name": cat["name"],
+            "temperament": cat["temperament"],
+            "origin": cat["origin"],
+            "description": cat["description"],
+            "reference_image": catReferenceImage["url"],
+            "lifespan": cat["life_span"] + " years",
+            "adaptability": cat["adaptability"],
+            "affection_level": cat["affection_level"],
+            "child_friendly": cat["child_friendly"],
+            "grooming": cat["grooming"],
+            "intelligence": cat["intelligence"],
+            "health_issues": cat["health_issues"],
+            "social_needs": cat["social_needs"],
+            "stranger_friendly": cat["stranger_friendly"],
+            "images": imagesArray
+        }
 
-    return catObject
+        return catObject
 
 # API Sync
 catAPI = requests.get(baseURL + "/breeds").json()
