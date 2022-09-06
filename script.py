@@ -61,39 +61,40 @@ for breed in catAPI:
     # Check only cats with images
     if "reference_image_id" in breed:
 
-        # Get images from API"s breeds
-        catAPIImages = requests.get(baseURL + "/images/search?size=med&order=DESC&limit=8&include_breeds=false&breed_ids=" + breed["id"], headers = authHeaders).json()
-        
-        # Try to find cat in MongoDB
-        cat = collection.find_one({"_id": breed["id"]})
+        if breed["id"] is not None:
+            # Get images from API"s breeds
+            catAPIImages = requests.get(baseURL + "/images/search?size=med&order=DESC&limit=8&include_breeds=false&breed_ids=" + breed["id"], headers = authHeaders).json()
+            
+            # Try to find cat in MongoDB
+            cat = collection.find_one({"_id": breed["id"]})
 
-        # If cat doesn"t exist in MongoDB
-        if cat is None:
-            print("new cat: " + breed["id"])
-            # Add to list to insert
-            listCatsToInsert.append(createCatObject(breed["id"]))
-        # If cat exists
-        else:
-            # Cat from API
-            _apiImages = []
-            for apiImage in catAPIImages:
-                _apiImages.append(apiImage['url'])
+            # If cat doesn"t exist in MongoDB
+            if cat is None:
+                print("new cat: " + breed["id"])
+                # Add to list to insert
+                listCatsToInsert.append(createCatObject(breed["id"]))
+            # If cat exists
+            else:
+                # Cat from API
+                _apiImages = []
+                for apiImage in catAPIImages:
+                    _apiImages.append(apiImage['url'])
 
-            # Cat from MongoDB
-            _catImages = []
-            for mongoImage in cat["images"]:
-                _catImages.append(mongoImage)
+                # Cat from MongoDB
+                _catImages = []
+                for mongoImage in cat["images"]:
+                    _catImages.append(mongoImage)
 
-            # Check if MongoDB has all images
-            for image in _apiImages:
-                if image not in _catImages:
-                    print('new image: ' + image)
-                    _catImages.append(image)
+                # Check if MongoDB has all images
+                for image in _apiImages:
+                    if image not in _catImages:
+                        print('new image: ' + image)
+                        _catImages.append(image)
 
-            # Update image array of cat if it has new photos
-            filter = {"_id": breed["id"]}
-            changes = {"$set": {"images": _catImages}}
-            collection.update_one(filter, changes)
+                # Update image array of cat if it has new photos
+                filter = {"_id": breed["id"]}
+                changes = {"$set": {"images": _catImages}}
+                collection.update_one(filter, changes)
 
 # Insert all new cats
 if len(listCatsToInsert) > 0:
