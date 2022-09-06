@@ -1,0 +1,31 @@
+name: Sync
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * SAT"
+
+jobs:
+  run-script:
+  name: Run sync script
+  runs-on: ubuntu-22.04
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set-up Python 
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run script
+      env:
+        API_KEY: ${{ secrets.API_KEY }}
+        CONNECT_STRING: ${{ secrets.CONNECT_STRING }}
+      run: python script.py
