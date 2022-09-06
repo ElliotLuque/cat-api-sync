@@ -12,7 +12,7 @@ db = client.cat_api
 collection = db.cats
 
 # Request base data
-authHeaders = {"content-type": "application/json", "x-api-key": API_KEY}
+authHeaders = {"Accept": "application/json", "x-api-key": API_KEY}
 baseURL = "https://api.thecatapi.com/v1"
 
 # Generate Cat Object
@@ -36,7 +36,7 @@ def createCatObject(catId):
         "origin": cat["origin"],
         "description": cat["description"],
         "reference_image": catReferenceImage["url"],
-        "lifespan": cat["life_span"],
+        "lifespan": cat["life_span"] + " years",
         "adaptability": cat["adaptability"],
         "affection_level": cat["affection_level"],
         "child_friendly": cat["child_friendly"],
@@ -52,9 +52,9 @@ def createCatObject(catId):
 
 # API Sync
 catAPI = requests.get(baseURL + "/breeds").json()
+listCatsToInsert = []
 
 for breed in catAPI:
-
     # Check only cats with images
     if "reference_image_id" in breed:
 
@@ -66,10 +66,8 @@ for breed in catAPI:
 
         # If cat doesn"t exist in MongoDB
         if cat is None:
-            # Insert it
-            insertCat = createCatObject(breed["id"])
-            print(insertCat["_id"])
-            collection.insert_one(insertCat)
+            # Add to list to insert
+            listCatsToInsert.append(createCatObject(breed["id"]))
         # If cat exists
         else:
             # Cat from API
@@ -88,7 +86,11 @@ for breed in catAPI:
                     print('new image: ' + image)
                     _catImages.append(image)
 
+            # Update image array of cat if it has new photos
             filter = {"_id": breed["id"]}
             changes = {"$set": {"images": _catImages}}
-
             collection.update_one(filter, changes)
+
+# Insert all new cats
+if len(listCatsToInsert) > 0:
+    collection.insert_many(listCatsToInsert)
