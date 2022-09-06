@@ -60,12 +60,13 @@ for breed in catAPI:
 
         # Get images from API"s breeds
         catAPIImages = requests.get(baseURL + "/images/search?size=med&order=DESC&limit=8&include_breeds=false&breed_ids=" + breed["id"], headers = authHeaders).json()
-        print(breed["id"])
+        
         # Try to find cat in MongoDB
         cat = collection.find_one({"_id": breed["id"]})
 
         # If cat doesn"t exist in MongoDB
         if cat is None:
+            print("new cat: " + breed["id"])
             # Add to list to insert
             listCatsToInsert.append(createCatObject(breed["id"]))
         # If cat exists
