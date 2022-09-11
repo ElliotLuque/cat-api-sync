@@ -8,7 +8,7 @@ CONNECT_STRING = os.environ['CONNECT_STRING']
 
 # MongoDB Client
 client = MongoClient(CONNECT_STRING)
-db = client.cat_api
+db = client.catdb
 collection = db.cats
 
 # Request base data
